@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -26,6 +27,7 @@ public class PatientController {
     private static final Logger LOGGER = LoggerFactory.getLogger(PatientController.class);
 
     @GetMapping("/user/index")
+    @PreAuthorize("hasRole('USER')")
     public String index(Model model,
                         @RequestParam(name ="page", defaultValue = "0") int page,
                         @RequestParam(name = "size", defaultValue = "4") int size,
@@ -40,6 +42,7 @@ public class PatientController {
     }
 
     @GetMapping("/admin/delete")
+    @PreAuthorize("hasRole('ADMIN')")
     public String deletePatient(@RequestParam(name="id") Long id,
                                 @RequestParam(name="keyword", defaultValue = "") String keyword,
                                 @RequestParam(name = "page", defaultValue = "0") int page)
@@ -49,11 +52,13 @@ public class PatientController {
     }
 
     @GetMapping("/")
+    @PreAuthorize("hasRole('USER')")
     public String home() {
 
         return "redirect:/user/index";
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/formPatient")
     public String formPatient(Model model)
     {
@@ -62,6 +67,7 @@ public class PatientController {
     }
 
     @PostMapping("/admin/savePatient")
+    @PreAuthorize("hasRole('ADMIN')")
     public String savePatient(@Valid Patient patient, BindingResult bindingResult) {
         if(bindingResult.hasErrors())
             return "formPatient";
@@ -69,7 +75,9 @@ public class PatientController {
         return "redirect:/user/index?keyword="+patient.getName();
     }
 
+
     @GetMapping("/admin/editPatient")
+    @PreAuthorize("hasRole('ADMIN')")
     public String editPatient(Model model, @RequestParam(name = "id") Long id)
     {
         Patient patient = patientRepository.findById(id).get();
