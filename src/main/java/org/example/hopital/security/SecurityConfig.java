@@ -8,7 +8,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+
+import javax.sql.DataSource;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -23,7 +26,7 @@ public class SecurityConfig {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @Bean
+    //@Bean
     public InMemoryUserDetailsManager inMemoryUserDetailsManager() {
         String pwd = passwordEncoder.encode("1234");
         return new InMemoryUserDetailsManager(
@@ -31,6 +34,11 @@ public class SecurityConfig {
                 User.withUsername("User2").password(passwordEncoder.encode("22222")).roles("VISITOR").build(),
                 User.withUsername("Admin").password(passwordEncoder.encode("admin")).roles("USER","ADMIN").build()
         );
+    }
+
+    @Bean
+    public JdbcUserDetailsManager  jdbcUserDetailsManager(DataSource dataSource) {
+        return new JdbcUserDetailsManager(dataSource);
     }
 
     // Créer mes propres utilisateurs et configurer les rôles pour accéder aux ressources de l'application
@@ -42,6 +50,7 @@ public class SecurityConfig {
 //        httpSecurity.authorizeHttpRequests().requestMatchers("/user/**").hasRole("USER");
         httpSecurity.authorizeHttpRequests((authorize -> authorize.anyRequest().authenticated()));
         httpSecurity.exceptionHandling().accessDeniedPage("/notAuthorized");
+
         return httpSecurity.build();
     }
 }

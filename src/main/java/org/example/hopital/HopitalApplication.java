@@ -7,8 +7,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 
 import java.util.Date;
 
@@ -24,6 +26,7 @@ public class HopitalApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+
         //Lombok NoArgsConstructor & AllArgsConstructor
         /*Patient p = new Patient();
         p.setId(null);
@@ -50,5 +53,21 @@ public class HopitalApplication implements CommandLineRunner {
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    //@Bean
+    CommandLineRunner CommandLineRunnerJdbcUsers(JdbcUserDetailsManager jdbcUserDetailsManager) {
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        return args -> {
+            jdbcUserDetailsManager.createUser(
+                    User.withUsername("user1").password(passwordEncoder.encode("1234")).authorities("USER").build()
+            );
+            jdbcUserDetailsManager.createUser(
+                    User.withUsername("user2").password(passwordEncoder.encode("1234")).authorities("USER").build()
+            );
+            jdbcUserDetailsManager.createUser(
+                    User.withUsername("Admin").password(passwordEncoder.encode("1234")).authorities("ADMIN","USER").build()
+            );
+        };
     }
 }
